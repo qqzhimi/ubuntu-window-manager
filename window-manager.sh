@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # ============================================
-# 通用窗口管理脚本 v2
-# toggle 支持三态: 启动 / 激活 / 最小化（同键开关）
+# 通用窗口管理脚本 v3
+# toggle 支持多窗口轮循环:
+#   0 个窗口       →  启动程序
+#   全部最小化     →  激活第 1 个窗口
+#   窗口 N 激活    →  激活窗口 N+1（如果不是最后一个）
+#   最后一个激活   →  全部最小化
 # 用法: window-manager.sh <action> <程序名> <窗口标题关键词> <启动命令> [进程名]
 # 标题关键词支持 | 分隔多个匹配项（大小写不敏感），如 "终端|Terminal|gnome-terminal"
 # 示例: window-manager.sh toggle "终端" "终端|Terminal|gnome-terminal" "gnome-terminal" "gnome-terminal-server"
@@ -44,16 +48,22 @@ check_dependencies() {
     fi
 }
 
-# 获取窗口ID
-# wmctrl -lx 输出格式: 0xWID PID 桌面 主机 窗口类 窗口标题
-# 用 grep -iE 同时匹配标题和类名（大小写不敏感）
-# WINDOW_TITLE 支持 | 分隔多个关键词，如 "终端|Terminal|gnome-terminal"
+# 获取第一个匹配窗口ID（用于单窗口场景）
 get_window_id() {
     if [ -z "$WINDOW_TITLE" ]; then
         echo ""
         return
     fi
     wmctrl -lx 2>/dev/null | grep -iE "$WINDOW_TITLE" | head -1 | awk '{print $1}'
+}
+
+# 获取所有匹配窗口ID（用于多窗口轮循环）
+# 返回每行一个十六进制窗口ID
+get_all_window_ids() {
+    if [ -z "$WINDOW_TITLE" ]; then
+        return
+    fi
+    wmctrl -lx 2>/dev/null | grep -iE "$WINDOW_TITLE" | awk '{print $1}'
 }
 
 # 检查进程是否已在运行
@@ -84,30 +94,9 @@ activate_window() {
 }
 
 # ============================================
-# toggle: 三态切换窗口
-#   窗口不存在  →  启动程序
-#   窗口存在，未激活 → 激活窗口
-#   窗口存在，已激活 → 最小化窗口
+# launch_app: 启动应用并等待窗口出现
 # ============================================
-toggle_window() {
-    local wid
-    wid=$(get_window_id)
-    local active_wid
-    active_wid=$(get_active_window_id)
-
-    if [ -n "$wid" ]; then
-        if [ "$wid" = "$active_wid" ]; then
-            # 窗口已激活 → 最小化
-            log_info "隐藏 $APP_NAME 窗口..."
-            xdotool windowminimize "$wid" 2>/dev/null
-        else
-            # 窗口存在但未激活 → 激活
-            log_info "激活 $APP_NAME 窗口..."
-            activate_window "$wid"
-        fi
-        return
-    fi
-
+launch_app() {
     # 窗口未找到，但进程可能已在运行（如托盘应用、无窗口进程）
     if is_process_running; then
         log_info "$APP_NAME 进程已在运行，但未找到窗口"
@@ -130,6 +119,7 @@ toggle_window() {
     nohup $LAUNCH_CMD > /dev/null 2>&1 &
 
     # 等待窗口出现（最多 3 秒）
+    local wid
     local wait_count=0
     while [ "$wait_count" -lt 30 ]; do
         sleep 0.1
@@ -146,6 +136,58 @@ toggle_window() {
         activate_window "$wid"
     else
         log_error "启动 $APP_NAME 超时，请检查启动命令: $LAUNCH_CMD"
+    fi
+}
+
+# ============================================
+# toggle: 多窗口轮循环切换
+#   0 个窗口     →  启动程序
+#   全部最小化   →  激活第 1 个窗口
+#   窗口 N 激活  →  激活窗口 N+1（如果不是最后一个）
+#   最后一个激活 →  全部最小化
+# ============================================
+toggle_window() {
+    local all_wids=()
+    while IFS= read -r wid; do
+        [ -n "$wid" ] && all_wids+=("$wid")
+    done < <(get_all_window_ids)
+
+    local count=${#all_wids[@]}
+
+    # 没有窗口 → 启动
+    if [ "$count" -eq 0 ]; then
+        launch_app
+        return
+    fi
+
+    local active_wid
+    active_wid=$(get_active_window_id)
+
+    # 找到当前激活窗口在列表中的位置
+    local active_idx=-1
+    local i
+    for ((i=0; i<count; i++)); do
+        if [ "${all_wids[$i]}" = "$active_wid" ]; then
+            active_idx=$i
+            break
+        fi
+    done
+
+    if [ "$active_idx" -lt 0 ]; then
+        # 没有窗口处于激活状态（全部最小化） → 激活第 1 个
+        log_info "激活 $APP_NAME 窗口 (1/$count)..."
+        activate_window "${all_wids[0]}"
+    elif [ "$active_idx" -eq $((count - 1)) ]; then
+        # 最后一个窗口激活 → 全部最小化
+        log_info "隐藏所有 $APP_NAME 窗口 ($count 个)..."
+        for wid in "${all_wids[@]}"; do
+            xdotool windowminimize "$wid" 2>/dev/null
+        done
+    else
+        # 激活下一个窗口
+        local next_idx=$((active_idx + 1))
+        log_info "切换到 $APP_NAME 窗口 ($((next_idx + 1))/$count)..."
+        activate_window "${all_wids[$next_idx]}"
     fi
 }
 
@@ -176,7 +218,7 @@ show_help() {
     echo "用法: $0 <command> <app_name> <window_title> <launch_cmd> [process_name]"
     echo ""
     echo "命令:"
-    echo "  toggle    三态切换（启动 / 激活 / 最小化）"
+    echo "  toggle    多窗口轮循环切换（启动 / 逐个激活 / 全部最小化）"
     echo "  minimize  最小化当前窗口（如果标题匹配）"
     echo ""
     echo "参数:"
