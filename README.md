@@ -37,6 +37,7 @@ cd ubuntu-window-manager
 | `Ctrl+Alt+C` | 打开/切换 VS Code（多窗口轮循环） |
 | `Ctrl+Alt+W` | 打开/切换微信（多窗口轮循环） |
 | `Ctrl+Alt+S` | 打开/切换 Obsidian（多窗口轮循环） |
+| `Ctrl+Alt+Q` | 打开/切换文件管理器（多窗口轮循环） |
 | `Ctrl+Alt+Z` | Flameshot 截图 |
 | `Ctrl+Esc` | 全局关闭当前窗口（不限应用） |
 
@@ -130,6 +131,7 @@ ubuntu-window-manager/
     ├── vscode.sh          # VS Code
     ├── wechat.sh          # 微信
     ├── obsidian.sh        # Obsidian 笔记
+    ├── file-manager.sh    # 文件管理器 (Ctrl+Alt+Q)
     ├── flameshot.sh       # 截图工具
     ├── close-window.sh    # 全局关闭 (Ctrl+Esc)
     └── smart-minimize.sh  # 智能最小化

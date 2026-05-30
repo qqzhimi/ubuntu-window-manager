@@ -67,6 +67,12 @@ SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/obsidian.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>s"
 ((++i))
 
+# ---- 文件管理器 ----
+SHORTCUTS["${i}_name"]="打开/切换文件管理器"
+SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/file-manager.sh"
+SHORTCUTS["${i}_key"]="<Primary><Alt>q"
+((++i))
+
 # ---- Flameshot ----
 SHORTCUTS["${i}_name"]="Flameshot 截图"
 SHORTCUTS["${i}_cmd"]="/usr/bin/flameshot gui"
