@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # ============================================
-# 通用窗口管理脚本
+# 通用窗口管理脚本 v2
+# toggle 支持三态: 启动 / 激活 / 最小化（同键开关）
 # 用法: window-manager.sh <action> <程序名> <窗口标题关键词> <启动命令> [进程名]
 # 标题关键词支持 | 分隔多个匹配项（大小写不敏感），如 "终端|Terminal|gnome-terminal"
 # 示例: window-manager.sh toggle "终端" "终端|Terminal|gnome-terminal" "gnome-terminal" "gnome-terminal-server"
@@ -64,6 +65,15 @@ is_process_running() {
     return 1
 }
 
+# 获取当前活跃窗口ID（输出十六进制，与 wmctrl 格式一致）
+get_active_window_id() {
+    local dec_id
+    dec_id=$(xdotool getactivewindow 2>/dev/null)
+    if [ -n "$dec_id" ]; then
+        printf "0x%08x" "$dec_id"
+    fi
+}
+
 # 激活窗口
 activate_window() {
     local wid="$1"
@@ -74,17 +84,27 @@ activate_window() {
 }
 
 # ============================================
-# toggle: 切换窗口（没有则启动，有则激活）
-# 使用进程检测防止重复启动
+# toggle: 三态切换窗口
+#   窗口不存在  →  启动程序
+#   窗口存在，未激活 → 激活窗口
+#   窗口存在，已激活 → 最小化窗口
 # ============================================
 toggle_window() {
     local wid
     wid=$(get_window_id)
+    local active_wid
+    active_wid=$(get_active_window_id)
 
     if [ -n "$wid" ]; then
-        # 窗口已存在 → 直接激活
-        log_info "激活 $APP_NAME 窗口..."
-        activate_window "$wid"
+        if [ "$wid" = "$active_wid" ]; then
+            # 窗口已激活 → 最小化
+            log_info "隐藏 $APP_NAME 窗口..."
+            xdotool windowminimize "$wid" 2>/dev/null
+        else
+            # 窗口存在但未激活 → 激活
+            log_info "激活 $APP_NAME 窗口..."
+            activate_window "$wid"
+        fi
         return
     fi
 
@@ -156,7 +176,7 @@ show_help() {
     echo "用法: $0 <command> <app_name> <window_title> <launch_cmd> [process_name]"
     echo ""
     echo "命令:"
-    echo "  toggle    切换窗口（没有则启动，有则激活）"
+    echo "  toggle    三态切换（启动 / 激活 / 最小化）"
     echo "  minimize  最小化当前窗口（如果标题匹配）"
     echo ""
     echo "参数:"

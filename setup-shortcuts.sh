@@ -37,12 +37,6 @@ clear_shortcuts() {
 declare -A SHORTCUTS
 
 i=0
-# ---- 智能最小化 (Esc) ----
-SHORTCUTS["${i}_name"]="Esc 最小化当前程序"
-SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/smart-minimize.sh"
-SHORTCUTS["${i}_key"]="Escape"
-((++i))
-
 # ---- Chrome 浏览器 ----
 SHORTCUTS["${i}_name"]="打开/切换 Chrome"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/chrome.sh"
@@ -77,6 +71,12 @@ SHORTCUTS["${i}_key"]="<Primary><Alt>s"
 SHORTCUTS["${i}_name"]="Flameshot 截图"
 SHORTCUTS["${i}_cmd"]="/usr/bin/flameshot gui"
 SHORTCUTS["${i}_key"]="<Primary><Alt>z"
+((++i))
+
+# ---- 全局关闭 (Ctrl+Esc) ----
+SHORTCUTS["${i}_name"]="全局关闭当前窗口"
+SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/close-window.sh"
+SHORTCUTS["${i}_key"]="<Primary>Escape"
 ((++i))
 
 TOTAL=$i
