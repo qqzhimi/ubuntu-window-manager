@@ -9,7 +9,7 @@
 set -e
 
 # 安装目录（脚本所在位置）
-INSTALL_DIR="${1:-$HOME/.local/bin/apps}"
+INSTALL_DIR="${2:-$HOME/.local/bin/apps}"
 SCRIPT_NAME="$(basename "$0")"
 
 GREEN='\033[0;32m'
@@ -41,43 +41,43 @@ i=0
 SHORTCUTS["${i}_name"]="Esc 最小化当前程序"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/smart-minimize.sh"
 SHORTCUTS["${i}_key"]="Escape"
-((i++))
+((++i))
 
 # ---- Chrome 浏览器 ----
 SHORTCUTS["${i}_name"]="打开/切换 Chrome"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/chrome.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>e"
-((i++))
+((++i))
 
 # ---- 终端 ----
 SHORTCUTS["${i}_name"]="打开/切换终端"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/terminal.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>a"
-((i++))
+((++i))
 
 # ---- VS Code ----
 SHORTCUTS["${i}_name"]="打开/切换 VS Code"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/vscode.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>c"
-((i++))
+((++i))
 
 # ---- 微信 ----
 SHORTCUTS["${i}_name"]="打开/切换微信"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/wechat.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>w"
-((i++))
+((++i))
 
 # ---- Obsidian ----
 SHORTCUTS["${i}_name"]="打开/切换 Obsidian"
 SHORTCUTS["${i}_cmd"]="$INSTALL_DIR/obsidian.sh"
 SHORTCUTS["${i}_key"]="<Primary><Alt>s"
-((i++))
+((++i))
 
 # ---- Flameshot ----
 SHORTCUTS["${i}_name"]="Flameshot 截图"
 SHORTCUTS["${i}_cmd"]="/usr/bin/flameshot gui"
 SHORTCUTS["${i}_key"]="<Primary><Alt>z"
-((i++))
+((++i))
 
 TOTAL=$i
 

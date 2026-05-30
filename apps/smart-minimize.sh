@@ -14,17 +14,22 @@ fi
 
 # 窗口标题关键词 -> 程序名（仅用于日志）
 declare -A APP_MAP=(
+    ["微信"]="微信"
     ["Weixin"]="微信"
     ["WeChat"]="微信"
     ["Google Chrome"]="Chrome"
+    ["Chrome"]="Chrome"
     ["Visual Studio Code"]="VS Code"
-    ["kitty"]="终端"
+    ["Code"]="VS Code"
+    ["终端"]="终端"
     ["Terminal"]="终端"
     ["gnome-terminal"]="终端"
     ["Obsidian"]="Obsidian"
     ["Thunderbird"]="邮件"
+    ["收件箱"]="邮件"
     ["Files"]="文件管理器"
     ["Settings"]="系统设置"
+    ["设置"]="系统设置"
 )
 
 for keyword in "${!APP_MAP[@]}"; do

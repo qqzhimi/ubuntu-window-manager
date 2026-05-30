@@ -30,9 +30,7 @@ log_step()  { echo -e "\n${BOLD}▶ $1${NC}"; }
 # ============================================
 check_system() {
     echo ""
-    echo "  ╔══════════════════════════════════════════╗"
-    echo "  ║   Ubuntu 窗口管理器 一键安装脚本       ║"
-    echo "  ╚══════════════════════════════════════════╝"
+    echo "  Ubuntu 窗口管理器 一键安装"
     echo ""
 
     # 检查是否在 GNOME 下
@@ -93,12 +91,16 @@ install_scripts() {
 
     # 安装应用脚本
     local count=0
+    shopt -s nullglob
     for script in "$REPO_DIR"/apps/*.sh; do
         local name="$(basename "$script")"
+        echo "安装 $name..."
         cp "$script" "$DEFAULT_APPS_DIR/$name"
         chmod +x "$DEFAULT_APPS_DIR/$name"
-        ((count++))
+        count=$((count + 1))
+        echo "  $name → $DEFAULT_APPS_DIR/"
     done
+    shopt -u nullglob
     log_info "已安装 $count 个应用脚本 → $DEFAULT_APPS_DIR/"
 
     # 检查 PATH
@@ -125,13 +127,18 @@ setup_shortcuts() {
         echo "  稍后可手动运行: $DEFAULT_APPS_DIR/../setup-shortcuts.sh"
         return
     fi
-
+    echo "将覆盖以下快捷键（如果已存在）:"
     # 复制 setup-shortcuts.sh
     cp "$REPO_DIR/setup-shortcuts.sh" "$DEFAULT_BIN_DIR/setup-shortcuts.sh"
     chmod +x "$DEFAULT_BIN_DIR/setup-shortcuts.sh"
 
     # 运行
-    "$DEFAULT_BIN_DIR/setup-shortcuts.sh" apply "$DEFAULT_APPS_DIR"
+    echo "运行快捷键配置..."
+    if "$DEFAULT_BIN_DIR/setup-shortcuts.sh" apply "$DEFAULT_APPS_DIR"; then
+        echo "快捷键设置完成"
+    else
+        log_warn "快捷键配置失败，请稍后手动运行: $DEFAULT_BIN_DIR/setup-shortcuts.sh apply $DEFAULT_APPS_DIR"
+    fi
 }
 
 # ============================================
@@ -139,25 +146,21 @@ setup_shortcuts() {
 # ============================================
 finish() {
     echo ""
-    echo "  ╔════════════════════════════════════════════════╗"
-    echo "  ║                                                ║"
-    echo "  ║      🎉 安装完成！                             ║"
-    echo "  ║                                                ║"
-    echo "  ║  已安装内容:                                    ║"
-    echo "  ║    • window-manager.sh  (窗口管理核心)         ║"
-    echo "  ║    • apps/*.sh          (应用启动器)           ║"
-    echo "  ║    • setup-shortcuts.sh (快捷键配置)           ║"
-    echo "  ║                                                ║"
-    echo "  ║  下一步:                                        ║"
-    echo "  ║    1. 注销后重新登录，快捷键即可生效           ║"
-    echo "  ║    2. 按 Ctrl+Alt+A 试试打开终端               ║"
-    echo "  ║    3. 按 Esc 试试最小化当前窗口                ║"
-    echo "  ║                                                ║"
-    echo "  ║  管理命令:                                      ║"
-    echo "  ║    setup-shortcuts.sh show  查看快捷键         ║"
-    echo "  ║    setup-shortcuts.sh apply 重新配置快捷键     ║"
-    echo "  ║                                                ║"
-    echo "  ╚════════════════════════════════════════════════╝"
+    echo "  🎉 安装完成！"
+    echo ""
+    echo "  已安装内容:"
+    echo "    • window-manager.sh  (窗口管理核心)"
+    echo "    • apps/*.sh          (应用启动器)"
+    echo "    • setup-shortcuts.sh (快捷键配置)"
+    echo ""
+    echo "  下一步:"
+    echo "    1. 注销后重新登录，快捷键即可生效"
+    echo "    2. 按 Ctrl+Alt+A 试试打开终端"
+    echo "    3. 按 Esc 试试最小化当前窗口"
+    echo ""
+    echo "  管理命令:"
+    echo "    setup-shortcuts.sh show  查看快捷键"
+    echo "    setup-shortcuts.sh apply 重新配置快捷键"
     echo ""
 }
 
