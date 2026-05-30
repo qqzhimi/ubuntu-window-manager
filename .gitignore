@@ -1,0 +1,12 @@
+# 用户自定义配置（如果从 setup-shortcuts.sh 拆出）
+user-config.sh
+
+# macOS
+.DS_Store
+
+# 编辑器
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
