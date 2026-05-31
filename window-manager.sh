@@ -1,30 +1,32 @@
 #!/bin/bash
 
 # ============================================
-# 通用窗口管理脚本 v3
-# toggle 支持多窗口轮循环:
-#   0 个窗口       →  启动程序
-#   全部最小化     →  激活第 1 个窗口
-#   窗口 N 激活    →  激活窗口 N+1（如果不是最后一个）
-#   最后一个激活   →  全部最小化
-# 用法: window-manager.sh <action> <程序名> <窗口标题关键词> <启动命令> [进程名]
-# 标题关键词支持 | 分隔多个匹配项（大小写不敏感），如 "终端|Terminal|gnome-terminal"
-# 示例: window-manager.sh toggle "终端" "终端|Terminal|gnome-terminal" "gnome-terminal" "gnome-terminal-server"
-#       window-manager.sh toggle "微信" "微信|WeChat|wechat" "wechat"
-#       window-manager.sh minimize "微信" "微信|WeChat"
+# Universal Window Manager Script v3
+# toggle supports multi-window cycling:
+#   0 windows       →  launch the app
+#   all minimized   →  activate window 1
+#   window N active →  activate window N+1 (if not the last)
+#   last active     →  minimize all
+# Usage: window-manager.sh <action> <app_name> <window_title_keywords> <launch_cmd> [process_name]
+# Title keywords support | as separator for multiple patterns (case-insensitive),
+#   e.g. "Terminal|gnome-terminal|终端"
+# Examples:
+#   window-manager.sh toggle "Terminal" "Terminal|gnome-terminal|终端" "gnome-terminal" "gnome-terminal-server"
+#   window-manager.sh toggle "WeChat" "WeChat|wechat|微信" "wechat"
+#   window-manager.sh minimize "WeChat" "WeChat|微信"
 # ============================================
 
-APP_NAME="$1"      # 显示用的名称
-WINDOW_TITLE="$2"  # 窗口标题关键词，多个用 | 分隔（如 "终端|Terminal"），用于 grep -iE
-LAUNCH_CMD="$3"    # 启动程序的命令
-PROCESS_NAME="$4"  # 可选：进程名（用于 pgrep 检测，如 gnome-terminal-server）
+APP_NAME="$1"      # Display name for the application
+WINDOW_TITLE="$2"  # Window title keywords, | separated (e.g. "Terminal|终端"), used with grep -iE
+LAUNCH_CMD="$3"    # Command to launch the application
+PROCESS_NAME="$4"  # Optional: process name for pgrep detection (e.g. gnome-terminal-server)
 
-# 颜色输出
+# Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-# 日志函数
+# Logging helpers
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -33,7 +35,7 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
-# 检查依赖
+# Check for required dependencies
 check_dependencies() {
     local missing=()
     for cmd in xdotool wmctrl; do
@@ -42,13 +44,13 @@ check_dependencies() {
         fi
     done
     if [ ${#missing[@]} -gt 0 ]; then
-        log_error "缺少依赖: ${missing[*]}"
-        log_error "请运行: sudo apt install ${missing[*]}"
+        log_error "Missing dependencies: ${missing[*]}"
+        log_error "Please run: sudo apt install ${missing[*]}"
         exit 1
     fi
 }
 
-# 获取第一个匹配窗口ID（用于单窗口场景）
+# Get the first matching window ID (single-window scenarios)
 get_window_id() {
     if [ -z "$WINDOW_TITLE" ]; then
         echo ""
@@ -57,8 +59,8 @@ get_window_id() {
     wmctrl -lx 2>/dev/null | grep -iE "$WINDOW_TITLE" | head -1 | awk '{print $1}'
 }
 
-# 获取所有匹配窗口ID（用于多窗口轮循环）
-# 返回每行一个十六进制窗口ID
+# Get all matching window IDs (multi-window cycling)
+# Returns one hex window ID per line
 get_all_window_ids() {
     if [ -z "$WINDOW_TITLE" ]; then
         return
@@ -66,7 +68,7 @@ get_all_window_ids() {
     wmctrl -lx 2>/dev/null | grep -iE "$WINDOW_TITLE" | awk '{print $1}'
 }
 
-# 检查进程是否已在运行
+# Check if the process is already running
 is_process_running() {
     if [ -n "$PROCESS_NAME" ]; then
         pgrep -x "$PROCESS_NAME" > /dev/null 2>&1
@@ -75,7 +77,7 @@ is_process_running() {
     return 1
 }
 
-# 获取当前活跃窗口ID（输出十六进制，与 wmctrl 格式一致）
+# Get the current active window ID (hex, matching wmctrl format)
 get_active_window_id() {
     local dec_id
     dec_id=$(xdotool getactivewindow 2>/dev/null)
@@ -84,7 +86,7 @@ get_active_window_id() {
     fi
 }
 
-# 激活窗口
+# Activate a window by ID
 activate_window() {
     local wid="$1"
     if [ -n "$wid" ]; then
@@ -94,31 +96,31 @@ activate_window() {
 }
 
 # ============================================
-# launch_app: 启动应用并等待窗口出现
+# launch_app: Start the application and wait for its window
 # ============================================
 launch_app() {
-    # 窗口未找到，但进程可能已在运行（如托盘应用、无窗口进程）
+    # Window not found, but the process may still be running (e.g. tray apps, headless processes)
     if is_process_running; then
-        log_info "$APP_NAME 进程已在运行，但未找到窗口"
+        log_info "$APP_NAME process is already running, but no window found"
         return
     fi
 
-    # 启动程序（使用锁文件防止竞态重复启动）
+    # Launch the program (use lock file to prevent race-condition duplicate launches)
     local lock_file="/tmp/wm-${APP_NAME}.lock"
     if [ -f "$lock_file" ]; then
-        # 锁文件存在，检查是否真的在启动中
+        # Lock file exists — check if the app is genuinely launching
         local lock_age=$(($(date +%s) - $(stat -c %Y "$lock_file" 2>/dev/null || echo 0)))
         if [ "$lock_age" -lt 5 ]; then
-            log_info "$APP_NAME 正在启动中，请稍候..."
+            log_info "$APP_NAME is already launching, please wait..."
             return
         fi
     fi
 
-    log_info "未找到 $APP_NAME 窗口，正在启动..."
+    log_info "No $APP_NAME window found, launching..."
     touch "$lock_file"
     nohup $LAUNCH_CMD > /dev/null 2>&1 &
 
-    # 等待窗口出现（最多 3 秒）
+    # Wait for a window to appear (up to 3 seconds)
     local wid
     local wait_count=0
     while [ "$wait_count" -lt 30 ]; do
@@ -131,20 +133,20 @@ launch_app() {
     rm -f "$lock_file"
 
     if [ -n "$wid" ]; then
-        log_info "$APP_NAME 已启动"
+        log_info "$APP_NAME started"
         sleep 0.3
         activate_window "$wid"
     else
-        log_error "启动 $APP_NAME 超时，请检查启动命令: $LAUNCH_CMD"
+        log_error "Launching $APP_NAME timed out. Check the launch command: $LAUNCH_CMD"
     fi
 }
 
 # ============================================
-# toggle: 多窗口轮循环切换
-#   0 个窗口     →  启动程序
-#   全部最小化   →  激活第 1 个窗口
-#   窗口 N 激活  →  激活窗口 N+1（如果不是最后一个）
-#   最后一个激活 →  全部最小化
+# toggle: Multi-window cycling
+#   0 windows      →  launch the app
+#   all minimized  →  activate window 1
+#   window N active → activate window N+1 (if not the last)
+#   last active    →  minimize all
 # ============================================
 toggle_window() {
     local all_wids=()
@@ -154,7 +156,7 @@ toggle_window() {
 
     local count=${#all_wids[@]}
 
-    # 没有窗口 → 启动
+    # No windows → launch
     if [ "$count" -eq 0 ]; then
         launch_app
         return
@@ -163,7 +165,7 @@ toggle_window() {
     local active_wid
     active_wid=$(get_active_window_id)
 
-    # 找到当前激活窗口在列表中的位置
+    # Find the position of the currently active window in the list
     local active_idx=-1
     local i
     for ((i=0; i<count; i++)); do
@@ -174,25 +176,25 @@ toggle_window() {
     done
 
     if [ "$active_idx" -lt 0 ]; then
-        # 没有窗口处于激活状态（全部最小化） → 激活第 1 个
-        log_info "激活 $APP_NAME 窗口 (1/$count)..."
+        # No window is active (all minimized) → activate the first
+        log_info "Activate $APP_NAME window (1/$count)..."
         activate_window "${all_wids[0]}"
     elif [ "$active_idx" -eq $((count - 1)) ]; then
-        # 最后一个窗口激活 → 全部最小化
-        log_info "隐藏所有 $APP_NAME 窗口 ($count 个)..."
+        # Last window active → minimize all
+        log_info "Hide all $APP_NAME windows ($count)..."
         for wid in "${all_wids[@]}"; do
             xdotool windowminimize "$wid" 2>/dev/null
         done
     else
-        # 激活下一个窗口
+        # Activate the next window
         local next_idx=$((active_idx + 1))
-        log_info "切换到 $APP_NAME 窗口 ($((next_idx + 1))/$count)..."
+        log_info "Switch to $APP_NAME window ($((next_idx + 1))/$count)..."
         activate_window "${all_wids[$next_idx]}"
     fi
 }
 
 # ============================================
-# minimize: 最小化当前窗口（仅当匹配指定程序时）
+# minimize: Minimize the current window (only if it matches the app)
 # ============================================
 minimize_current() {
     local active_wid
@@ -206,37 +208,37 @@ minimize_current() {
     active_title=$(xdotool getwindowname "$active_wid" 2>/dev/null)
 
     if echo "$active_title" | grep -qi "$WINDOW_TITLE"; then
-        log_info "最小化 $APP_NAME 窗口"
+        log_info "Minimize $APP_NAME window"
         xdotool windowminimize "$active_wid" 2>/dev/null
     fi
 }
 
 # ============================================
-# 帮助信息
+# Help
 # ============================================
 show_help() {
-    echo "用法: $0 <command> <app_name> <window_title> <launch_cmd> [process_name]"
+    echo "Usage: $0 <command> <app_name> <window_title> <launch_cmd> [process_name]"
     echo ""
-    echo "命令:"
-    echo "  toggle    多窗口轮循环切换（启动 / 逐个激活 / 全部最小化）"
-    echo "  minimize  最小化当前窗口（如果标题匹配）"
+    echo "Commands:"
+    echo "  toggle    Multi-window cycling (launch / activate next / minimize all)"
+    echo "  minimize  Minimize current window (if title matches)"
     echo ""
-    echo "参数:"
-    echo "  app_name       显示用的程序名称"
-    echo "  window_title   窗口标题关键词，| 分隔多个（大小写不敏感）"
-    echo "                 会同时匹配窗口标题和 WM_CLASS，如 \"终端|Terminal|gnome\""
-    echo "  launch_cmd     启动命令"
-    echo "  process_name   进程名（可选，pgrep 检测防重复启动）"
+    echo "Arguments:"
+    echo "  app_name       Display name for the application"
+    echo "  window_title   Window title keywords, | separated (case-insensitive)"
+    echo "                 Matches both window title and WM_CLASS, e.g. \"Terminal|terminal|终端\""
+    echo "  launch_cmd     Launch command"
+    echo "  process_name   Process name (optional, pgrep detection to prevent duplicate launches)"
     echo ""
-    echo "示例:"
-    echo "  $0 toggle 终端 '终端|Terminal|gnome-terminal' gnome-terminal gnome-terminal-server"
-    echo "  $0 toggle 微信 '微信|WeChat|wechat' wechat"
+    echo "Examples:"
+    echo "  $0 toggle Terminal 'Terminal|terminal|gnome-terminal|终端' gnome-terminal gnome-terminal-server"
+    echo "  $0 toggle WeChat 'WeChat|wechat|微信' wechat"
     echo "  $0 toggle Chrome 'Google Chrome|chrome' google-chrome chrome"
-    echo "  $0 minimize 微信 '微信|WeChat'"
+    echo "  $0 minimize WeChat 'WeChat|微信'"
 }
 
 # ============================================
-# 入口
+# Entry point
 # ============================================
 main() {
     check_dependencies
@@ -251,7 +253,7 @@ main() {
             LAUNCH_CMD="$3"
             PROCESS_NAME="$4"
             if [ -z "$APP_NAME" ] || [ -z "$WINDOW_TITLE" ] || [ -z "$LAUNCH_CMD" ]; then
-                log_error "toggle 命令缺少参数"
+                log_error "toggle command needs more arguments"
                 show_help
                 exit 1
             fi
@@ -261,7 +263,7 @@ main() {
             APP_NAME="$1"
             WINDOW_TITLE="$2"
             if [ -z "$APP_NAME" ] || [ -z "$WINDOW_TITLE" ]; then
-                log_error "minimize 命令缺少参数"
+                log_error "minimize command needs more arguments"
                 show_help
                 exit 1
             fi

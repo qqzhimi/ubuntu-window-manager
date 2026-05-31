@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # ============================================
-# Ubuntu 窗口管理器 - 一键卸载脚本
-# 用法: ./uninstall.sh
-#   静默模式: ./uninstall.sh -y  (跳过确认)
+# Ubuntu Window Manager - One-Click Uninstaller
+# Usage: ./uninstall.sh
+#   Silent mode: ./uninstall.sh -y  (skip confirmation)
 # ============================================
 
 set -e
@@ -23,19 +23,19 @@ log_error() { echo -e "${RED}[✗]${NC} $1" >&2; }
 log_step()  { echo -e "\n${BOLD}▶ $1${NC}"; }
 
 # ============================================
-# 清除 GNOME 快捷键
+# Clear GNOME shortcuts
 # ============================================
 clear_shortcuts() {
-    log_step "清除 GNOME 快捷键..."
+    log_step "Clearing GNOME shortcuts..."
     gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "[]"
-    log_info "快捷键已清除"
+    log_info "Shortcuts cleared"
 }
 
 # ============================================
-# 删除已安装的文件
+# Remove installed files
 # ============================================
 remove_files() {
-    log_step "删除脚本文件..."
+    log_step "Removing script files..."
 
     local removed=0
 
@@ -54,43 +54,43 @@ remove_files() {
     if [ -d "$DEFAULT_APPS_DIR" ]; then
         local app_count=$(ls "$DEFAULT_APPS_DIR"/*.sh 2>/dev/null | wc -l)
         rm -rf "$DEFAULT_APPS_DIR"
-        echo "  ✓ $DEFAULT_APPS_DIR/ ($app_count 个脚本)"
+        echo "  ✓ $DEFAULT_APPS_DIR/ ($app_count scripts)"
         removed=$((removed + app_count))
     fi
 
-    # 清理临时锁文件
+    # Clean up temporary lock files
     rm -f /tmp/wm-*.lock 2>/dev/null || true
 
     if [ "$removed" -eq 0 ]; then
-        log_warn "未找到已安装的文件，可能已经卸载过"
+        log_warn "No installed files found—may already be uninstalled"
     else
-        log_info "已删除 $removed 个文件"
+        log_info "Removed $removed files"
     fi
 }
 
 # ============================================
-# 完成
+# Done
 # ============================================
 finish() {
     echo ""
-    echo "  ✅ 卸载完成！"
-    echo "  系统依赖 (xdotool、wmctrl) 已保留，可按需手动卸载。"
-    echo "  如快捷键仍在生效，请注销后重新登录。"
+    echo "  ✅ Uninstall complete!"
+    echo "  System dependencies (xdotool, wmctrl) have been preserved; remove manually if desired."
+    echo "  If shortcuts still work, log out and back in."
     echo ""
 }
 
 # ============================================
-# 入口
+# Entry point
 # ============================================
 main() {
     echo ""
-    echo "  Ubuntu 窗口管理器 一键卸载"
+    echo "  Ubuntu Window Manager - One-Click Uninstaller"
     echo ""
 
     if [ "${1:-}" != "-y" ]; then
-        read -rp "  确认卸载? [y/N] " answer
+        read -rp "  Confirm uninstall? [y/N] " answer
         if [ "$answer" != "y" ] && [ "$answer" != "Y" ]; then
-            echo "  已取消。"
+            echo "  Cancelled."
             exit 0
         fi
     fi

@@ -1,3 +1,3 @@
 #!/bin/bash
-# 打开 Flameshot 截图工具
+# Launch Flameshot screenshot tool
 exec /usr/bin/flameshot gui

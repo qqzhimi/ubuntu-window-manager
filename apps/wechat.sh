@@ -1,9 +1,9 @@
 #!/bin/bash
-# 打开/切换微信 (需先通过 snap/apt 安装)
-# 依赖: window-manager.sh (位于父目录)
+# Open/Switch WeChat (must be installed via snap/apt first)
+# Depends on: window-manager.sh (located in parent directory)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec "$SCRIPT_DIR/../window-manager.sh" toggle \
-    "微信" \
-    "微信|WeChat|wechat" \
+    "WeChat" \
+    "WeChat|wechat|微信" \
     "wechat" \
     "wechat"
