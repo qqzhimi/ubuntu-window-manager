@@ -1,10 +1,21 @@
+<p align="center">
+  <a href="README.md">
+    <img src="https://img.shields.io/badge/English-e0e0e0?style=for-the-badge" alt="Switch to English">
+  </a>
+  &nbsp;
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/简体中文-CC2936?style=for-the-badge&logoColor=white">
+    <img src="https://img.shields.io/badge/简体中文-CC2936?style=for-the-badge&logoColor=white" alt="简体中文 (当前)">
+  </picture>
+</p>
+
+---
+
 # Ubuntu 窗口管理器
 
 一键安装的 Ubuntu GNOME 窗口管理脚本和快捷键系统。
 
 克隆到任意 Ubuntu 机器，运行 `./install.sh` 即可生效。
-
-> **English Docs**: [README.md](README.md)
 
 ## ✨ 功能
 

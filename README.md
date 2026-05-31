@@ -1,10 +1,21 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/English-007EC6?style=for-the-badge&logoColor=white">
+    <img src="https://img.shields.io/badge/English-007EC6?style=for-the-badge&logoColor=white" alt="English (current)">
+  </picture>
+  &nbsp;
+  <a href="README.zh-CN.md">
+    <img src="https://img.shields.io/badge/简体中文-e0e0e0?style=for-the-badge" alt="Switch to 中文">
+  </a>
+</p>
+
+---
+
 # Ubuntu Window Manager
 
 A one-click-install Ubuntu GNOME window management script and keyboard shortcut system.
 
 Clone to any Ubuntu machine, run `./install.sh`, and you're set.
-
-> **中文文档**: [README.zh-CN.md](README.zh-CN.md)
 
 ## ✨ Features
 
