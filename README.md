@@ -1,162 +1,162 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/English-007EC6?style=for-the-badge&logoColor=white">
-    <img src="https://img.shields.io/badge/English-007EC6?style=for-the-badge&logoColor=white" alt="English (current)">
-  </picture>
-  &nbsp;
-  <a href="README.zh-CN.md">
-    <img src="https://img.shields.io/badge/简体中文-e0e0e0?style=for-the-badge" alt="Switch to 中文">
+  <a href="README_EN.md">
+    <img src="https://img.shields.io/badge/English-e0e0e0?style=for-the-badge" alt="Switch to English">
   </a>
+  &nbsp;
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/简体中文-CC2936?style=for-the-badge&logoColor=white">
+    <img src="https://img.shields.io/badge/简体中文-CC2936?style=for-the-badge&logoColor=white" alt="简体中文 (当前)">
+  </picture>
 </p>
 
 ---
 
-# Ubuntu Window Manager
+# Ubuntu 窗口管理器
 
-A one-click-install Ubuntu GNOME window management script and keyboard shortcut system.
+一键安装的 Ubuntu GNOME 窗口管理脚本和快捷键系统。
 
-Clone to any Ubuntu machine, run `./install.sh`, and you're set.
+克隆到任意 Ubuntu 机器，运行 `./install.sh` 即可生效。
 
-## ✨ Features
+## ✨ 功能
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Window Cycling** | Same hotkey cycles through multiple windows; minimizing all on the last |
-| **Three-State Toggle** | Single shortcut: launch / activate next / minimize all |
-| **Global Close** | `Ctrl+Esc` minimizes the current window (any application) |
-| **Single-Instance Protection** | Lock file + process detection prevents duplicate launches |
-| **Cross-Language Matching** | Matches both Chinese and English window titles (e.g., "终端" and "Terminal") |
-| **GNOME Integration** | System-level shortcuts via gsettings |
+| 功能 | 说明 |
+|------|------|
+| **多窗口轮循环** | 同键在多窗口间轮流激活，最后一个全部最小化 |
+| **三态切换** | 同一快捷键：启动 / 逐个激活 / 全部最小化 |
+| **全局关闭** | `Ctrl+Esc` 最小化任意当前窗口（不限应用） |
+| **单实例保护** | 锁文件 + 进程检测，防止重复启动 |
+| **跨语言匹配** | 同时匹配中英文窗口标题（如 "终端" 和 "Terminal"） |
+| **GNOME 集成** | 通过 gsettings 注册系统级快捷键 |
 
-## 📦 Installation
+## 📦 安装
 
 ```bash
-# 1. Clone the repository
+# 1. 克隆仓库
 git clone https://github.com/qqzhimi/ubuntu-window-manager.git
 cd ubuntu-window-manager
 
-# 2. Run the installer
+# 2. 运行安装
 ./install.sh
 ```
 
-The installer automatically: installs dependencies → copies scripts → configures shortcuts. No manual intervention needed.
+安装脚本自动完成：安装依赖 → 复制脚本 → 配置快捷键，无需手动干预。
 
-## ⌨️ Default Shortcuts
+## ⌨️ 默认快捷键
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Alt+A` | Open/Switch Terminal (multi-window cycling) |
-| `Ctrl+Alt+E` | Open/Switch Chrome (multi-window cycling) |
-| `Ctrl+Alt+C` | Open/Switch VS Code (multi-window cycling) |
-| `Ctrl+Alt+W` | Open/Switch WeChat (multi-window cycling) |
-| `Ctrl+Alt+S` | Open/Switch Obsidian (multi-window cycling) |
-| `Ctrl+Alt+Q` | Open/Switch File Manager (multi-window cycling) |
-| `Ctrl+Alt+Z` | Flameshot Screenshot |
-| `Ctrl+Esc` | Global close current window (any application) |
+| 快捷键 | 功能 |
+|--------|------|
+| `Ctrl+Alt+A` | 打开/切换终端（多窗口轮循环） |
+| `Ctrl+Alt+E` | 打开/切换 Chrome（多窗口轮循环） |
+| `Ctrl+Alt+C` | 打开/切换 VS Code（多窗口轮循环） |
+| `Ctrl+Alt+W` | 打开/切换微信（多窗口轮循环） |
+| `Ctrl+Alt+S` | 打开/切换 Obsidian（多窗口轮循环） |
+| `Ctrl+Alt+Q` | 打开/切换文件管理器（多窗口轮循环） |
+| `Ctrl+Alt+Z` | Flameshot 截图 |
+| `Ctrl+Esc` | 全局关闭当前窗口（不限应用） |
 
-### Multi-Window Cycling
+### 多窗口轮循环
 
-When multiple windows of the same app are open, repeatedly pressing the shortcut **cycles through them**:
+同一应用打开多个窗口时，重复按快捷键会**轮流激活**：
 
 ```
-Press 1 → Window 1 activated
-Press 2 → Window 2 activated
-Press 3 → Window 3 activated
-Press 4 → All minimized
-Press 5 → Window 1 activated (cycle repeats)
+按第 1 次 → 窗口 1 激活
+按第 2 次 → 窗口 2 激活
+按第 3 次 → 窗口 3 激活
+按第 4 次 → 全部最小化
+按第 5 次 → 窗口 1 激活（循环）
 ```
 
-### Key Notation
+### 按键格式说明
 
 - `<Primary>` = `Ctrl`
 - `<Alt>` = `Alt`
 - `<Shift>` = `Shift`
-- `<Super>` = `Win` / Super key
+- `<Super>` = `Win` 徽标键
 
-## 🗑️ Uninstall
+## 🗑️ 卸载
 
 ```bash
 ./uninstall.sh
 ```
 
-The uninstaller automatically clears shortcuts, removes scripts, and cleans up lock files (system packages xdotool/wmctrl are preserved).
+卸载脚本会自动清除快捷键、删除脚本、清理锁文件（保留 xdotool/wmctrl 系统包）。
 
-## 🔧 Customization
+## 🔧 自定义
 
-### Modifying Shortcuts
+### 修改快捷键
 
-Edit `setup-shortcuts.sh`, modify the key bindings in the `SHORTCUTS` array, then run:
+编辑 `setup-shortcuts.sh`，修改 `SHORTCUTS` 数组中的按键绑定，然后运行：
 
 ```bash
 setup-shortcuts.sh apply
 ```
 
-### Adding a New App
+### 添加新应用
 
-1. Create a new script in the `apps/` directory:
+1. 在 `apps/` 目录新建脚本：
 
 ```bash
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec "$SCRIPT_DIR/../window-manager.sh" toggle \
-    "App Name" \
-    "Window Title Keywords|Alternate Title" \
-    "launch-command" \
-    "process-name"
+    "程序名" \
+    "窗口标题关键词|English Title" \
+    "启动命令" \
+    "进程名"
 ```
 
-2. Add a shortcut in `setup-shortcuts.sh`
+2. 在 `setup-shortcuts.sh` 中添加快捷键
 
-3. Re-run the installer or shortcut configuration
+3. 重新运行安装或快捷键配置
 
-### Custom Window Titles
+### 自定义窗口标题
 
-Window titles may differ across systems/languages. Use the following to inspect them:
+不同系统/语言下窗口标题可能不同，用以下命令查看：
 
 ```bash
-wmctrl -lx | grep -i "keyword"
+wmctrl -lx | grep -i "关键词"
 ```
 
-`WINDOW_TITLE` supports `|`-separated keywords, matching against both window title and WM_CLASS (case-insensitive).
+`WINDOW_TITLE` 支持 `|` 分隔多个关键词，会同时匹配窗口标题和 WM_CLASS（大小写不敏感）。
 
-## 📋 Dependencies
+## 📋 依赖
 
-- `xdotool` — Window manipulation
-- `wmctrl` — Window manager control
-- GNOME desktop environment (for shortcut functionality)
+- `xdotool` — 窗口操作
+- `wmctrl` — 窗口管理器控制
+- GNOME 桌面环境（快捷键功能）
 
 ```bash
 sudo apt install xdotool wmctrl
 ```
 
-## 🏗️ Directory Structure
+## 🏗️ 目录结构
 
 ```
 ubuntu-window-manager/
-├── README.md              # This file (English)
-├── README.zh-CN.md        # Chinese documentation
-├── install.sh             # One-click installer
-├── uninstall.sh           # One-click uninstaller
-├── setup-shortcuts.sh     # Shortcut configuration
-├── window-manager.sh      # Core window management engine (v3)
+├── README.md              # 本文件（中文文档）
+├── README_EN.md           # English documentation
+├── install.sh             # 一键安装脚本
+├── uninstall.sh           # 一键卸载脚本
+├── setup-shortcuts.sh     # 快捷键配置
+├── window-manager.sh      # 核心窗口管理引擎（v3）
 └── apps/
-    ├── chrome.sh          # Google Chrome
-    ├── terminal.sh        # Terminal
+    ├── chrome.sh          # Chrome 浏览器
+    ├── terminal.sh        # 终端
     ├── vscode.sh          # VS Code
-    ├── wechat.sh          # WeChat
-    ├── obsidian.sh        # Obsidian
-    ├── file-manager.sh    # File Manager (Ctrl+Alt+Q)
-    ├── flameshot.sh       # Screenshot tool
-    ├── close-window.sh    # Global close (Ctrl+Esc)
-    └── smart-minimize.sh  # Smart minimize
+    ├── wechat.sh          # 微信
+    ├── obsidian.sh        # Obsidian 笔记
+    ├── file-manager.sh    # 文件管理器 (Ctrl+Alt+Q)
+    ├── flameshot.sh       # 截图工具
+    ├── close-window.sh    # 全局关闭 (Ctrl+Esc)
+    └── smart-minimize.sh  # 智能最小化
 ```
 
-## ⚠️ Notes
+## ⚠️ 注意事项
 
-- Shortcuts require **logout and re-login** to take effect
-- Non-system apps like WeChat and Obsidian must be installed separately
-- Only supports X11 sessions; xdotool/wmctrl may be limited under Wayland
-- If shortcuts conflict, edit `setup-shortcuts.sh` and re-run
+- 快捷键需要**注销后重新登录**才能生效
+- 微信、Obsidian 等非系统自带程序需先手动安装
+- 仅支持 X11 会话，Wayland 下 xdotool/wmctrl 功能可能受限
+- 如果快捷键冲突，编辑 `setup-shortcuts.sh` 后重新运行即可
 
 ## 📝 License
 
