@@ -17,6 +17,15 @@ A one-click-install Ubuntu GNOME window management script and keyboard shortcut 
 
 Clone to any Ubuntu machine, run `./install.sh`, and you're set.
 
+<p align="center">
+  <img src="https://img.shields.io/github/license/qqzhimi/ubuntu-window-manager?style=flat-square&color=blue" alt="License">
+  <img src="https://img.shields.io/badge/platform-Ubuntu%2020.04%2B-E95420?style=flat-square&logo=ubuntu" alt="Platform">
+  <img src="https://img.shields.io/badge/made%20with-Bash-4EAA25?style=flat-square&logo=gnu-bash" alt="Bash">
+  <img src="https://img.shields.io/badge/GNOME-integrated-4A86CF?style=flat-square&logo=gnome" alt="GNOME">
+  <img src="https://img.shields.io/badge/session-X11-ED1941?style=flat-square&logo=x.org" alt="X11">
+  <img src="https://img.shields.io/github/last-commit/qqzhimi/ubuntu-window-manager?style=flat-square&color=purple" alt="Last Commit">
+</p>
+
 ## ✨ Features
 
 | Feature | Description |
